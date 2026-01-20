@@ -2,15 +2,15 @@ import { useEffect, useState, useRef } from 'react'
 import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 
-// Coordenadas fixas
-const ORIGEM = [-23.5505, -46.6333] // João (São Paulo)
-const DESTINO = [-23.5612, -46.6560] // Passageiro
+// Coordenadas fixas para cenário de guincho
+const ORIGEM_GUINCHO = [-23.5505, -46.6333] // Local do guincho (parceiro)
+const DESTINO_CARRO = [-23.5612, -46.6560] // Local do carro quebrado
 
-// Ícone customizado do carro (emoji 🚗 com tamanho maior para touch)
-const createCarIcon = () => {
+// Ícone customizado do guincho (emoji 🚛 com tamanho maior para touch)
+const createGuinchoIcon = () => {
   return L.divIcon({
-    className: 'custom-car-icon',
-    html: '<div style="font-size: 32px;">🚗</div>',
+    className: 'custom-guincho-icon',
+    html: '<div style="font-size: 32px;">🚛</div>',
     iconSize: [40, 40],
     iconAnchor: [20, 20],
     popupAnchor: [0, -20],
@@ -42,9 +42,9 @@ function MapSizeInvalidator() {
   return null
 }
 
-function MapaRastreamento() {
+function GuinchoRastreamento() {
   const [route, setRoute] = useState([])
-  const [carPosition, setCarPosition] = useState(ORIGEM)
+  const [guinchoPosition, setGuinchoPosition] = useState(ORIGEM_GUINCHO)
   const [isAnimating, setIsAnimating] = useState(false)
   const animationFrameRef = useRef(null)
   const startTimeRef = useRef(null)
@@ -54,7 +54,8 @@ function MapaRastreamento() {
     const fetchRoute = async () => {
       try {
         // OSRM espera [lon, lat] na URL
-        const url = `https://router.project-osrm.org/route/v1/driving/${ORIGEM[1]},${ORIGEM[0]};${DESTINO[1]},${DESTINO[0]}?overview=full&geometries=geojson`
+        // IMPORTANTE: usar HTTPS para evitar mixed content em produção
+        const url = `https://router.project-osrm.org/route/v1/driving/${ORIGEM_GUINCHO[1]},${ORIGEM_GUINCHO[0]};${DESTINO_CARRO[1]},${DESTINO_CARRO[0]}?overview=full&geometries=geojson`
         
         const response = await fetch(url)
         if (!response.ok) throw new Error('OSRM request failed')
@@ -69,27 +70,27 @@ function MapaRastreamento() {
           setRoute(coordinates)
         } else {
           // Fallback: rota reta se OSRM falhar
-          setRoute([ORIGEM, DESTINO])
+          setRoute([ORIGEM_GUINCHO, DESTINO_CARRO])
         }
       } catch (error) {
         console.warn('Erro ao buscar rota OSRM, usando rota reta:', error)
         // Fallback: rota reta
-        setRoute([ORIGEM, DESTINO])
+        setRoute([ORIGEM_GUINCHO, DESTINO_CARRO])
       }
     }
 
     fetchRoute()
   }, [])
 
-  // Animar carro pela rota
+  // Animar guincho pela rota
   useEffect(() => {
     if (route.length === 0) return
 
     // Resetar posição e estado quando rota mudar
-    setCarPosition(ORIGEM)
+    setGuinchoPosition(ORIGEM_GUINCHO)
     setIsAnimating(true)
     startTimeRef.current = Date.now()
-    const duration = 1000000 // 45 segundos
+    const duration = 1000000 // 45 segundos (aproximadamente 15 minutos em tempo real)
 
     const animate = () => {
       const elapsed = Date.now() - startTimeRef.current
@@ -106,11 +107,11 @@ function MapaRastreamento() {
         const end = route[segmentIndex + 1]
         const lat = start[0] + (end[0] - start[0]) * segmentFraction
         const lng = start[1] + (end[1] - start[1]) * segmentFraction
-        setCarPosition([lat, lng])
+        setGuinchoPosition([lat, lng])
         animationFrameRef.current = requestAnimationFrame(animate)
       } else {
         // Chegou ao destino
-        setCarPosition(DESTINO)
+        setGuinchoPosition(DESTINO_CARRO)
         setIsAnimating(false)
       }
     }
@@ -126,7 +127,7 @@ function MapaRastreamento() {
 
   return (
     <MapContainer
-      center={ORIGEM}
+      center={ORIGEM_GUINCHO}
       zoom={13}
       style={{ height: '100%', width: '100%' }}
       scrollWheelZoom={false}
@@ -143,21 +144,21 @@ function MapaRastreamento() {
         <Polyline
           positions={route}
           pathOptions={{
-            color: '#2563eb',
+            color: '#f59e0b',
             weight: 6,
             opacity: 0.8,
           }}
         />
       )}
 
-      <Marker position={carPosition} icon={createCarIcon()}>
+      <Marker position={guinchoPosition} icon={createGuinchoIcon()}>
         <Popup autoOpen={false} closeButton={false}>
-          João a caminho!
+          Guincho a caminho!
         </Popup>
       </Marker>
     </MapContainer>
   )
 }
 
-export default MapaRastreamento
+export default GuinchoRastreamento
 

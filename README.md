@@ -6,6 +6,7 @@ Aplicação React mobile-first para rastreamento de motorista em tempo real, sim
 
 - **React 18** - Biblioteca UI
 - **Vite** - Build tool e dev server
+- **React Router** - Roteamento de páginas
 - **React Leaflet** - Integração React com Leaflet
 - **Leaflet** - Biblioteca de mapas open-source
 - **OpenStreetMap** - Tiles de mapa gratuitos
@@ -51,9 +52,12 @@ npm run preview
 ## 🗺️ Funcionalidades
 
 - **Mapa interativo**: Visualização usando OpenStreetMap (100% gratuito)
-- **Rota em tempo real**: Calculada via OSRM demo service
-- **Animação do carro**: Movimento suave pela rota em ~45 segundos
+- **Rota em tempo real**: Calculada via OSRM demo service (HTTPS)
+- **Animação em tempo real**: Movimento suave pela rota em ~45 segundos
 - **Interface mobile-friendly**: Header e footer fixos, layout otimizado
+- **Rotas disponíveis**:
+  - `/` - Rastreamento de motorista (João)
+  - `/guincho` - Rastreamento de guincho parceiro
 
 ## 📍 Coordenadas
 
@@ -75,13 +79,18 @@ npm run preview
 EuropAssist/
 ├── index.html          # HTML base com viewport meta
 ├── vite.config.js      # Configuração do Vite
+├── netlify.toml        # Configuração Netlify (SPA routing)
 ├── package.json        # Dependências
 ├── src/
 │   ├── main.jsx        # Entry point
-│   ├── App.jsx         # Componente principal (layout)
+│   ├── App.jsx         # Router principal (React Router)
 │   ├── index.css       # Estilos mobile-first
+│   ├── pages/
+│   │   ├── MotoristaPage.jsx    # Página do motorista (/)
+│   │   └── GuinchoPage.jsx      # Página do guincho (/guincho)
 │   └── components/
-│       └── MapaRastreamento.jsx  # Componente do mapa
+│       ├── MapaRastreamento.jsx    # Mapa para motorista
+│       └── GuinchoRastreamento.jsx # Mapa para guincho
 └── README.md
 ```
 
