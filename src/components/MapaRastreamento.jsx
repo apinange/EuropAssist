@@ -54,7 +54,7 @@ function MapaRastreamento() {
     const fetchRoute = async () => {
       try {
         // OSRM espera [lon, lat] na URL
-        const url = `http://router.project-osrm.org/route/v1/driving/${ORIGEM[1]},${ORIGEM[0]};${DESTINO[1]},${DESTINO[0]}?overview=full&geometries=geojson`
+        const url = `https://router.project-osrm.org/route/v1/driving/${ORIGEM[1]},${ORIGEM[0]};${DESTINO[1]},${DESTINO[0]}?overview=full&geometries=geojson`
         
         const response = await fetch(url)
         if (!response.ok) throw new Error('OSRM request failed')
